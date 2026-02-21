@@ -5,21 +5,20 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
+const PORT = process.env.PORT || 10000;
+const NEWS_TOKEN = process.env.NEWS_TOKEN;
 
 app.use(cors());
 
-// 🔥 Servir archivos estáticos desde la carpeta public
+// Servir carpeta public correctamente
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 🔥 Ruta principal
+// Ruta principal
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const NEWS_TOKEN = process.env.NEWS_TOKEN;
-const PORT = process.env.PORT || 5000;
-
-// Endpoint de noticias principales
+// Endpoint top headlines
 app.get('/api/noticias/top', async (req, res) => {
   try {
     const { categoria, pais } = req.query;
@@ -34,12 +33,12 @@ app.get('/api/noticias/top', async (req, res) => {
 
     res.json(response.data);
   } catch (error) {
-    console.error(error.message);
+    console.error(error.response?.data || error.message);
     res.status(500).json({ error: 'Error al obtener noticias' });
   }
 });
 
-// Endpoint de búsqueda
+// Endpoint búsqueda
 app.get('/api/noticias/buscar', async (req, res) => {
   try {
     const { q } = req.query;
@@ -53,7 +52,7 @@ app.get('/api/noticias/buscar', async (req, res) => {
 
     res.json(response.data);
   } catch (error) {
-    console.error(error.message);
+    console.error(error.response?.data || error.message);
     res.status(500).json({ error: 'Error al buscar noticias' });
   }
 });
