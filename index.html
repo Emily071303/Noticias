@@ -126,7 +126,6 @@
       margin-top: 2rem;
     }
 
-    /* 🎡 Spinner */
     .spinner {
       border: 6px solid #f3f3f3;
       border-top: 6px solid #0078d7;
@@ -143,6 +142,7 @@
     }
   </style>
 </head>
+
 <body>
   <header>
     <h1>📰 Noticias Recientes</h1>
@@ -181,66 +181,72 @@
       noticiasContainer.innerHTML = '<div class="spinner"></div>';
     }
 
+    function renderNoticias(data) {
+      noticiasContainer.innerHTML = "";
+
+      if (!data.articles || data.articles.length === 0) {
+        noticiasContainer.innerHTML = "<p style='text-align:center;'>No se encontraron noticias 😢</p>";
+        return;
+      }
+
+      data.articles.forEach(noticia => {
+        const article = document.createElement('article');
+        article.innerHTML = `
+          ${noticia.urlToImage ? `<img src="${noticia.urlToImage}" alt="Imagen noticia">` : ""}
+          <div class="news-content">
+            <h3>${noticia.title}</h3>
+            <p>${noticia.description || "Sin descripción disponible"}</p>
+            <a href="${noticia.url}" target="_blank">Leer más</a>
+          </div>
+        `;
+        noticiasContainer.appendChild(article);
+      });
+    }
+
     async function cargarNoticias() {
       const categoria = document.getElementById('categoria').value;
       try {
         errorDiv.textContent = "";
         mostrarSpinner();
+
         const res = await fetch(`/api/noticias/top?categoria=${categoria}&pais=mx`);
         const data = await res.json();
 
-        if (!data.articles) throw new Error("No se recibieron artículos");
-
-        noticiasContainer.innerHTML = "";
-        data.articles.forEach(noticia => {
-          const article = document.createElement('article');
-          article.innerHTML = `
-            ${noticia.urlToImage ? `<img src="${noticia.urlToImage}" alt="Imagen noticia">` : ""}
-            <div class="news-content">
-              <h3>${noticia.title}</h3>
-              <p>${noticia.description || "Sin descripción disponible"}</p>
-              <a href="${noticia.url}" target="_blank">Leer más</a>
-            </div>
-          `;
-          noticiasContainer.appendChild(article);
-        });
+        renderNoticias(data);
       } catch (err) {
-        errorDiv.textContent = "Error al cargar noticias 😳: " + err.message;
+        errorDiv.textContent = "Error al cargar noticias 😳";
         noticiasContainer.innerHTML = "";
       }
     }
 
     async function buscarNoticias() {
-      const query = document.getElementById('busqueda').value;
+      const query = document.getElementById('busqueda').value.trim();
+
+      if (!query) {
+        errorDiv.textContent = "Escribe algo para buscar 🔎";
+        return;
+      }
+
       try {
         errorDiv.textContent = "";
         mostrarSpinner();
+
         const res = await fetch(`/api/noticias/buscar?q=${query}`);
         const data = await res.json();
 
-        if (!data.articles) throw new Error("No se recibieron artículos");
-
-        noticiasContainer.innerHTML = "";
-        data.articles.forEach(noticia => {
-          const article = document.createElement('article');
-          article.innerHTML = `
-            ${noticia.urlToImage ? `<img src="${noticia.urlToImage}" alt="Imagen noticia">` : ""}
-            <div class="news-content">
-              <h3>${noticia.title}</h3>
-              <p>${noticia.description || "Sin descripción disponible"}</p>
-              <a href="${noticia.url}" target="_blank">Leer más</a>
-            </div>
-          `;
-          noticiasContainer.appendChild(article);
-        });
+        renderNoticias(data);
       } catch (err) {
-        errorDiv.textContent = "Error al buscar noticias 😳: " + err.message;
+        errorDiv.textContent = "Error al buscar noticias 😳";
         noticiasContainer.innerHTML = "";
       }
     }
 
     document.getElementById('btnCargar').addEventListener('click', cargarNoticias);
     document.getElementById('btnBuscar').addEventListener('click', buscarNoticias);
+
+    // 🔥 Cargar noticias automáticamente al abrir
+    window.addEventListener('load', cargarNoticias);
   </script>
+
 </body>
 </html>
