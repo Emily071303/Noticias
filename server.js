@@ -7,9 +7,11 @@ const path = require('path');
 const app = express();
 
 app.use(cors());
-app.use(express.static('public'));
 
-// 🔥 RUTA PRINCIPAL (para que no salga "Cannot GET /")
+// 🔥 Servir archivos estáticos desde la carpeta public
+app.use(express.static(path.join(__dirname, 'public')));
+
+// 🔥 Ruta principal
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -21,6 +23,7 @@ const PORT = process.env.PORT || 5000;
 app.get('/api/noticias/top', async (req, res) => {
   try {
     const { categoria, pais } = req.query;
+
     const response = await axios.get('https://newsapi.org/v2/top-headlines', {
       params: {
         category: categoria,
@@ -28,6 +31,7 @@ app.get('/api/noticias/top', async (req, res) => {
         apiKey: NEWS_TOKEN
       }
     });
+
     res.json(response.data);
   } catch (error) {
     console.error(error.message);
@@ -39,12 +43,14 @@ app.get('/api/noticias/top', async (req, res) => {
 app.get('/api/noticias/buscar', async (req, res) => {
   try {
     const { q } = req.query;
+
     const response = await axios.get('https://newsapi.org/v2/everything', {
       params: {
         q,
         apiKey: NEWS_TOKEN
       }
     });
+
     res.json(response.data);
   } catch (error) {
     console.error(error.message);
