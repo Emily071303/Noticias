@@ -2,10 +2,17 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
+
 app.use(cors());
 app.use(express.static('public'));
+
+// 🔥 RUTA PRINCIPAL (para que no salga "Cannot GET /")
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 const NEWS_TOKEN = process.env.NEWS_TOKEN;
 const PORT = process.env.PORT || 5000;
