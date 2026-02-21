@@ -28,7 +28,7 @@ app.get('/api/noticias/top', async (req, res) => {
   }
 });
 
-// Endpoint de búsqueda de noticias
+// Endpoint de búsqueda
 app.get('/api/noticias/buscar', async (req, res) => {
   try {
     const { q } = req.query;
@@ -45,19 +45,6 @@ app.get('/api/noticias/buscar', async (req, res) => {
   }
 });
 
-// Arranque del servidor con detección de puerto ocupado
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-});
-
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.log(`⚠️ El puerto ${PORT} está ocupado, intentando otro...`);
-    const newPort = Number(PORT) + 1;
-    app.listen(newPort, () => {
-      console.log(`🚀 Servidor corriendo en http://localhost:${newPort}`);
-    });
-  } else {
-    console.error(err);
-  }
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 });
